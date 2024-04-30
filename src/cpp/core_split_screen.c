@@ -51,7 +51,7 @@ int main(void)
     const int screenWidth = 800;
     const int screenHeight = 450;
 
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - split screen");
+    InitWindow(screenWidth, screenHeight, "raylib [core] example - split screenv2");
 
     // Setup player 1 camera and screen
     cameraPlayer1.fovy = 45.0f;
@@ -92,6 +92,7 @@ int main(void)
             cameraPlayer1.position.z += offsetThisFrame;
             cameraPlayer1.target.z += offsetThisFrame;
         }
+        
         else if (IsKeyDown(KEY_S))
         {
             cameraPlayer1.position.z -= offsetThisFrame;

@@ -26,7 +26,8 @@ CXX			=	clang++
 CX			=	g++
 CXX_FLAGS	=	-Wall -Wextra -std=c++17 -ggdb
 CX_FLAGS	=	-Wall -Wextra -std=c17 -ggdb -Wc++11-narrowing
-exeD		=  $(subst .cpp,.o,$(bin)/$(GAME)) 
+# exeD		=  $(subst .cpp,.o,$(bin)/$(GAME)) 
+exeD		=  $(subst .c,.o,$(bin)/$(GAME)) 
 res			= nothing
 NATIVE_APP_GLUE=$(ANDROID_NDK)/sources/android/native_app_glue
 FLAGS	= -ffunction-sections -funwind-tables -fstack-protector-strong -fPIC -Wall -Wformat -Werror=format-security -no-canonical-prefixes -DANDROID -DPLATFORM_ANDROID -D__ANDROID_API__=29
@@ -88,7 +89,7 @@ compileD: src/cpp/$(GAME)
 	echo $(OS)
 	$(CXX) \
 	src/cpp/$(GAME) \
-	libD/$(OS)/libraylib.a \
+	lib/Desktop/$(OS)/libraylib.a \
 	-o $(exeD) \
 	-Iinclude \
 	$(OSLIBS) \
