@@ -10,13 +10,24 @@
 *   Copyright (c) 2015 Ramon Santamaria (@raysan5)
 *
 ********************************************************************************************/
+typedef enum
+{
+    false,
+    true
+}
+bool;
 
 #include "raylib.h"
+#ifdef __ANDROID__
+#include "androidsensor.h"
+#endif
+
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+// #include <stdbool.h>
 
 #if defined(PLATFORM_WEB)
     #include <emscripten/emscripten.h>
@@ -51,6 +62,9 @@ typedef struct Brick {
     bool active;
 } Brick;
 
+Sound fxOn;
+
+
 //------------------------------------------------------------------------------------
 // Global Variables Declaration
 //------------------------------------------------------------------------------------
@@ -70,9 +84,17 @@ static Vector2 brickSize = { 0 };
 //------------------------------------------------------------------------------------
 static void InitGame(void);         // Initialize game
 static void UpdateGame(void);       // Update game (one frame)
+static void UpdateControls(void);       // Update game (one frame)
 static void DrawGame(void);         // Draw game (one frame)
 static void UnloadGame(void);       // Unload game
 static void UpdateDrawFrame(void);  // Update and Draw (one frame)
+
+int currentGesture;
+int lastGesture;
+
+#ifdef __ANDROID__
+AndroidSensor angle;
+#endif
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -104,6 +126,14 @@ int main(void)
     //--------------------------------------------------------------------------------------
     UnloadGame();         // Unload loaded data (textures, sounds, models...)
 
+    UnloadSound(fxOn); // Unload sound data
+
+#ifdef __ANDROID__
+    CloseSensor(&angle);
+#endif
+
+    CloseAudioDevice(); // Close audio device
+
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 
@@ -117,11 +147,19 @@ int main(void)
 // Initialize game variables
 void InitGame(void)
 {
+
+    InitAudioDevice(); // Initialize audio device
+    fxOn = LoadSound("assets/audio/complete.ogg"); // Load WAV audio file
+    PlaySound(fxOn);
+    // Sound fxOgg = LoadSound("resources/target.ogg");
+#ifdef _ANDROID_
+    angle = InitAndroidSensor(GAMEVECTOR, 10000);
+#endif
     brickSize = (Vector2){ GetScreenWidth()/BRICKS_PER_LINE, 40 };
 
     // Initialize player
     player.position = (Vector2){ screenWidth/2, screenHeight*7/8 };
-    player.size = (Vector2){ screenWidth/10, 20 };
+    player.size = (Vector2){ screenWidth/5, 20 };
     player.life = PLAYER_MAX_LIFE;
     player.color = BLUE;
 
@@ -130,7 +168,7 @@ void InitGame(void)
     ball.speed = (Vector2){ 0, 0 };
     ball.radius = 7;
     ball.active = false;
-
+    // Playsound(fxOn);
     // Initialize bricks
     int initialDownPosition = 50;
 
@@ -142,6 +180,9 @@ void InitGame(void)
             brick[i][j].active = true;
         }
     }
+
+    int currentGesture = GESTURE_NONE;
+    int lastGesture = GESTURE_NONE;
 }
 
 // Update game (one frame)
@@ -154,7 +195,14 @@ void UpdateGame(void)
         if (!pause)
         {
             // Player movement logic
-            if (IsKeyDown(KEY_LEFT)) player.position.x -= 5;
+            UpdateControls();
+            if (IsKeyDown(KEY_LEFT))
+                player.position.x -= 5;
+            if (currentGesture == GESTURE_SWIPE_LEFT)
+                player.position.x -= 5;
+            if (currentGesture == GESTURE_SWIPE_RIGHT)
+                player.position.x += 5;
+
             if ((player.position.x - player.size.x/2) <= 0) player.position.x = player.size.x/2;
             if (IsKeyDown(KEY_RIGHT)) player.position.x += 5;
             if ((player.position.x + player.size.x/2) >= screenWidth) player.position.x = screenWidth - player.size.x/2;
@@ -165,7 +213,7 @@ void UpdateGame(void)
             // Ball launching logic
             if (!ball.active)
             {
-                if (IsKeyPressed(KEY_SPACE))
+                if ( IsKeyPressed(KEY_SPACE) || currentGesture == GESTURE_TAP)
                 {
                     ball.active = true;
                     ball.speed = (Vector2){ 0, -5 };
@@ -202,6 +250,7 @@ void UpdateGame(void)
                 {
                     ball.speed.y *= -1;
                     ball.speed.x = (ball.position.x - player.position.x)/(player.size.x/2)*5;
+                    PlaySound(fxOn);
                 }
             }
 
@@ -266,7 +315,7 @@ void UpdateGame(void)
     }
     else
     {
-        if (IsKeyPressed(KEY_ENTER))
+        if (IsKeyPressed(KEY_ENTER) || currentGesture == GESTURE_TAP)
         {
             InitGame();
             gameOver = false;
@@ -280,6 +329,7 @@ void DrawGame(void)
     BeginDrawing();
 
         ClearBackground(RAYWHITE);
+        
 
         if (!gameOver)
         {
@@ -290,7 +340,7 @@ void DrawGame(void)
             for (int i = 0; i < player.life; i++) DrawRectangle(20 + 40*i, screenHeight - 30, 35, 10, LIGHTGRAY);
 
             // Draw ball
-            DrawCircleV(ball.position, ball.radius, MAROON);
+            DrawCircleV(ball.position, ball.radius, PINK);
 
             // Draw bricks
             for (int i = 0; i < LINES_OF_BRICKS; i++)
@@ -309,7 +359,15 @@ void DrawGame(void)
         }
         else DrawText("PRESS [ENTER] TO PLAY AGAIN", GetScreenWidth()/2 - MeasureText("PRESS [ENTER] TO PLAY AGAIN", 20)/2, GetScreenHeight()/2 - 50, 20, GRAY);
 
-    EndDrawing();
+        DrawText("Tilt x", 100, 100, 10, BLUE);
+
+#ifdef __ANDROID__
+        DrawText(TextFormat("X: %.3f", angle.value.x), 100, 160, 30, RED);
+        DrawText(TextFormat("Y: %.3f", angle.value.y), 300, 160, 30, RED);
+        DrawText(TextFormat("Z: %.3f", angle.value.z), 500, 160, 30, RED);
+#endif
+
+        EndDrawing();
 }
 
 // Unload game variables
@@ -323,4 +381,54 @@ void UpdateDrawFrame(void)
 {
     UpdateGame();
     DrawGame();
+}
+
+
+void UpdateControls(){
+
+    lastGesture = currentGesture;
+    currentGesture = GetGestureDetected();
+#ifdef __ANDROID__
+    UseSensor(&angle);
+#endif
+
+    if (currentGesture != lastGesture)
+    {
+            // Store gesture string
+            switch (currentGesture)
+            {
+            case GESTURE_TAP:
+                // TextCopy(gestureStrings[gesturesCount], "GESTURE TAP");
+                break;
+            case GESTURE_DOUBLETAP:
+                // TextCopy(gestureStrings[gesturesCount], "GESTURE DOUBLETAP");
+                break;
+            case GESTURE_HOLD:
+                // TextCopy(gestureStrings[gesturesCount], "GESTURE HOLD");
+                break;
+            case GESTURE_DRAG:
+                // TextCopy(gestureStrings[gesturesCount], "GESTURE DRAG");
+                break;
+            case GESTURE_SWIPE_RIGHT:
+                // TextCopy(gestureStrings[gesturesCount], "GESTURE SWIPE RIGHT");
+                break;
+            case GESTURE_SWIPE_LEFT:
+                // TextCopy(gestureStrings[gesturesCount], "GESTURE SWIPE LEFT");
+                break;
+            case GESTURE_SWIPE_UP:
+                // TextCopy(gestureStrings[gesturesCount], "GESTURE SWIPE UP");
+                break;
+            case GESTURE_SWIPE_DOWN:
+                // TextCopy(gestureStrings[gesturesCount], "GESTURE SWIPE DOWN");
+                break;
+            case GESTURE_PINCH_IN:
+                // TextCopy(gestureStrings[gesturesCount], "GESTURE PINCH IN");
+                break;
+            case GESTURE_PINCH_OUT:
+                // TextCopy(gestureStrings[gesturesCount], "GESTURE PINCH OUT");
+                break;
+            default:
+                break;
+            }
+    }
 }

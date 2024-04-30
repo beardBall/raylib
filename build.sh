@@ -19,18 +19,45 @@ echo $TYPE
 echo $GAME
 echo $LANG
 
+CXX=g++
+CX=gcc
+CXX_FLAGS= "-Wall -std=c++17 -ggdb -Wc++11-narrowing"
+CX_FLAGS=-Wall -std=c20 -ggdb
+
+
 if [ "$TYPE" = "Mac" ]; then
+rm $BIN/game.o
 	echo "\nDo mac compiling for $GAME"
 	
 #	clang src/*.c -Lraylib/src -lraylib -Iinclude -framework OpenGL -framework OpenAL -framework Cocoa -DPLATFORM_DESKTOP
 	if [ "$LANG" = "CPP" ]; then
 		echo "C plus plus"
-		g++ -std=c++17 -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL libD/libraylib.a src/cpp/$GAME -o $BIN/game.o -Iinclude/CPP -Iinclude
+		g++ -std=c++17  libD/libraylib.a -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL src/cpp/$GAME -o $BIN/game.o -Iinclude/CPP -Iinclude
+		# clang  src/cpp/arkanoid.c libD/libraylib.a -o arkanoid -Iinclude -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL -framework CoreAudio
 	else
-		clang -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL libD/libraylib.a src/cpp/$GAME -o $BIN/game.o -Iinclude
+		echo "compiling using C"
+#		clang  src/cpp/$GAME libD/libraylib.a  -o $BIN/game.o -Iinclude -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL 
+#		clang  src/cpp/$GAME -LlibD libD/libraylib.a -lraylib  -o $BIN/game.o -Iinclude -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL 
+	#	clang  -o game.o -LlibD -lraylib  src/cpp/$GAME    -Iinclude -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL 
+		# clang libD/libraylib.a -o game.o src/cpp/arkanoid.c -Iinclude -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL 
+		# clang -o game.o libD/libraylib.a src/cpp/arkanoid.c -Iinclude -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL 
+		# clang  src/cpp/arkanoid.c libD/raudio.o libD/libraylib.a  -o game -Iinclude -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL -framework CoreAudio
+		# clang  src/cpp/arkanoid.c -Llibd -lraylib   -o game -Iinclude -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL -framework CoreAudio
+		# clang  src/cpp/arkanoid.c libD/libraylib.a -o arkanoid -Iinclude -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL -framework CoreAudio
+		$CX $CX_FLAGS src/cpp/$GAME libD/libraylib.a  -o $BIN/game.o -Iinclude -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL 
+
 	fi
-	$BIN/game.o
-	exit
+
+	if [ $? -ne 0 ]
+	then
+		echo "Build failed"
+		exit 1
+	else
+		$BIN/game.o
+		exit	
+	fi
+
+	
 fi
 
 
@@ -155,6 +182,7 @@ cd ../..
 echo "# Add libraries to APK - Completed"
 
 
+ADB=$ANDROID_SDK/platform-tools/adb
 
 echo " Sign APK"
 # NOTE: If you changed the storepass and keypass in the setup process, change them here too
@@ -170,5 +198,5 @@ echo " Zipalign APK - completed"
 mv -f android/game.final.apk android/game.apk
 
 # Install to device or emulator
-$ANDROID_SDK/platform-tools/adb install -r android/game.apk
-adb shell am start -a android.intent.action.MAIN -n com.raylib.game/.NativeLoader
+$ADB install -r android/game.apk
+$ADB shell am start -a android.intent.action.MAIN -n com.raylib.game/.NativeLoader

@@ -1,0 +1,54 @@
+Manifest-Version: 1.0
+Created-By: 15.0.2 (AdoptOpenJDK)
+
+Name: assets/icon_mdpi.png
+SHA-256-Digest: vQcgNwHFOYarmtGxgMK0KW4VVh/Py79hrFWEbZd0sMg=
+
+Name: AndroidManifest.xml
+SHA-256-Digest: U91YvNPSCQhXpq/ytqlAVGqY7iOfgGa3anOte1l5YtQ=
+
+Name: assets/audio/off.ogg
+SHA-256-Digest: iNYY6GLC8R7I8e2pZBFYsyVbW0BCw3AoUL7np6RDxIY=
+
+Name: res/drawable-ldpi-v4/icon.png
+SHA-256-Digest: eZcmWXXagfl79TerNkI/ejpDUGueQ4nG+Nlp2MNNugo=
+
+Name: assets/icon_ldpi.png
+SHA-256-Digest: Glztohp2jV5tc34etdaTEOt4Es22fIEwBhOX++PYgHc=
+
+Name: assets/audio/button2.ogg
+SHA-256-Digest: xV8sI8A0okWH5nRYoimJ2hEekOJZzFLnNy2MOoSdt8k=
+
+Name: res/drawable-hdpi-v4/icon.png
+SHA-256-Digest: Z6REUFvPDU4BKWwh3HmxKP7snuRW4IyoO7FTxCc2/BI=
+
+Name: res/drawable-xhdpi-v4/icon.png
+SHA-256-Digest: jRsHXPVHbO/Je1bkDWWRUFPXRFe2WmR/HeXOYpC2hyE=
+
+Name: assets/audio/complete.ogg
+SHA-256-Digest: TWiDSX8HNo8ColyL8wm2bhBoqyZ8ylMKLw/LCaA2gWg=
+
+Name: assets/icon_hdpi.png
+SHA-256-Digest: GDAzpck+tkgUCZ2wNttZYXjOvkX89g9PnY/89SoTVTI=
+
+Name: assets/audio/button1.ogg
+SHA-256-Digest: 0Uy+Gv66g+Zs5ImAqii7CEmMMhazafdYLvkul8oskdM=
+
+Name: lib/armeabi-v7a/libmain.so
+SHA-256-Digest: nBBridr1Fk+zM+U6JSstzI3z63dwNDxKzTu5W9RTIOI=
+
+Name: res/drawable-mdpi-v4/icon.png
+SHA-256-Digest: tOeG6BqjCdbPUx/xYZ/d5YsEcDeK72Q4KMGH2sr+nYc=
+
+Name: resources.arsc
+SHA-256-Digest: Y2+ETmMmx9pvRIPlAlokJhqnJjTa7Ku3Gs+S+O5PtUs=
+
+Name: assets/icon_xhdpi.png
+SHA-256-Digest: RE3mAAA8f8X/RZ/96pnFvX647uqFsnbVDfBA4/WcC1Q=
+
+Name: classes.dex
+SHA-256-Digest: SwxcOZ0xLb3OQtPUhD+hSjokOhrvWO6Ni4+VCJyWJ6k=
+
+Name: assets/audio/on.ogg
+SHA-256-Digest: /KOkwaUc2bhALcc8MbPy+LwonVW770RfiYo3ADxhUDM=
+
