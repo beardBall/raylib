@@ -1,4 +1,4 @@
-GAME		= arkanoid.cpp
+# GAME		= arkanoid.cpp
 GAME 		= core_split_screen.c
 
 GIT_REPO	=	"https://github.com/ahmed00101/cpp-game"
@@ -24,10 +24,10 @@ CC			=	$(TOOLCHAIN)/bin/$(CCTYPE)29-clang++
 
 CXX			=	clang++
 CX			=	g++
-CXX_FLAGS	=	-Wall -Wextra -std=c++17 -ggdb
-CX_FLAGS	=	-Wall -Wextra -std=c17 -ggdb -Wc++11-narrowing
-# exeD		=  $(subst .cpp,.o,$(bin)/$(GAME)) 
-exeD		=  $(subst .c,.o,$(bin)/$(GAME)) 
+CXX_FLAGS	=	-Wall -Wextra -std=c++17 -ggdb -v
+CX_FLAGS	=	-Wall -Wextra -std=c17 -ggdb -Wc++11-narrowing -v
+exeD		=  $(subst .cpp,.o,$(bin)/$(GAME)) 
+# exeD		=  $(subst .c,.o,$(bin)/$(GAME)) 
 res			= nothing
 NATIVE_APP_GLUE=$(ANDROID_NDK)/sources/android/native_app_glue
 FLAGS	= -ffunction-sections -funwind-tables -fstack-protector-strong -fPIC -Wall -Wformat -Werror=format-security -no-canonical-prefixes -DANDROID -DPLATFORM_ANDROID -D__ANDROID_API__=29
@@ -89,7 +89,7 @@ compileD: src/cpp/$(GAME)
 	echo $(OS)
 	$(CXX) \
 	src/cpp/$(GAME) \
-	lib/Desktop/$(OS)/libraylib.a \
+	lib/Desktop/$(OS)/libraylib5.a \
 	-o $(exeD) \
 	-Iinclude \
 	$(OSLIBS) \
